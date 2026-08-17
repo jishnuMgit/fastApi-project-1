@@ -1,0 +1,41 @@
+from fastapi import FastAPI
+from sqlalchemy import text
+from app.routers import auth, users
+
+from app.database.database import engine
+
+app = FastAPI()
+
+
+
+
+@app.get("/db-test")
+def db_test():
+    try:
+        with engine.connect() as connection:
+            result = connection.execute(text("SELECT 1"))
+            result.fetchone()
+
+        return {
+            "database": "connected"
+        }
+
+    except Exception as e:
+        return {
+            "database": "connection failed",
+            "error": str(e)
+        }
+
+
+app.include_router(
+    auth.router,
+    prefix="/api/v1"
+)    
+app.include_router(
+    users.router,
+    prefix="/api/v1"
+)
+
+@app.get("/")
+def root():
+    return {"message": "API is running"}
