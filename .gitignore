@@ -1,0 +1,75 @@
+# =========================
+# Environment variables
+# =========================
+.env
+.env.*
+!.env.example
+backend/.env
+frontend/.env
+
+# =========================
+# Python / FastAPI
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+backend/venv/
+backend/.venv/
+venv/
+.venv/
+
+# Python tools
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# =========================
+# Alembic
+# =========================
+# Keep Alembic migration files tracked!
+# Do NOT ignore backend/alembic/
+
+# =========================
+# Node / React
+# =========================
+frontend/node_modules/
+frontend/.npm/
+frontend/.yarn/
+frontend/.pnpm-store/
+
+# Build output
+frontend/dist/
+frontend/build/
+
+# =========================
+# React / Vite environment
+# =========================
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+# =========================
+# IDE / VS Code
+# =========================
+.vscode/
+.idea/
+
+# =========================
+# OS files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Logs
+# =========================
+*.log
+
+# =========================
+# Coverage
+# =========================
+.coverage
+htmlcov/
+coverage.xml
