@@ -14,8 +14,8 @@ router = APIRouter(
 
 
 @router.post("/login")
-def login(data: LoginRequest):
-    return login_controller(data)
+def login(data: LoginRequest,db:Session=Depends(get_db)):
+    return login_controller(data,db)
 
 @router.post("/register")
 def register(

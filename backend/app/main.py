@@ -1,12 +1,12 @@
 from fastapi import FastAPI
 from sqlalchemy import text
 from app.routers import auth, users
+from app.core.middleware import jwt_middleware
 
 from app.database.database import engine
 
 app = FastAPI()
-
-
+app.middleware("http")(jwt_middleware)
 
 
 @app.get("/db-test")
