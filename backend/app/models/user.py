@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String,Boolean
 
 from app.database.database import Base
 
@@ -12,3 +12,13 @@ class User(Base):
     phone = Column(String(20), nullable=False, unique=True)
     email = Column(String(255), nullable=False, unique=True)
     password = Column(String(255), nullable=False)
+    defaultCurrency = Column(
+        String(50),
+        nullable=False,
+        default="USD",
+        server_default="USD"
+    )
+    isSetupComplete = Column(
+        Boolean,
+        default=False
+    )

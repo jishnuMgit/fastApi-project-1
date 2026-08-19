@@ -1,4 +1,4 @@
-from app.schemas.auth import LoginRequest
+from app.schemas.auth import LoginRequest,SetupRequest
 from sqlalchemy.orm import Session
 from app.models.user import User
 from app.schemas.user import UserCreate
@@ -40,18 +40,23 @@ def login_controller(data: LoginRequest, db: Session):
         "full_name": user.full_name
     }
     jwttoken= create_access_token(userdetails)
+    print(jwttoken)
     return {
         "message": "login successful",
         "user": {
             "id": user.id,
             "email": user.email,
-            "full_name": user.full_name
+            "full_name": user.full_name,
+            "defaultCurrency":user.defaultCurrency,
+                    "isSetupComplete":user.isSetupComplete
+
         },
         "access_token": jwttoken,
         "token_type": "bearer"
     }
 
 def register_controller(data: UserCreate, db: Session):
+    print(data)
 
     existing_user = (
         db.query(User)
@@ -87,4 +92,64 @@ def register_controller(data: UserCreate, db: Session):
         "message": "User registered successfully",
         "user_id": user.id,
         "email": user.email
+    }
+
+
+def setup_user(
+    data: SetupRequest,
+    request,
+    db: Session
+):
+    user_id = request.state.user.get("id")
+
+    user = (
+        db.query(User)
+        .filter(User.id == user_id)
+        .first()
+    )
+
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found"
+        )
+
+    user.defaultCurrency = data.defaultCurrency
+    user.isSetupComplete=True
+    db.commit()
+    db.refresh(user)
+
+    return {
+        "id": user.id,
+        "email": user.email,
+        "full_name": user.full_name,
+        "age": user.age,
+        "phone": user.phone,
+        "defaultCurrency": user.defaultCurrency,
+        "isSetupComplete":user.isSetupComplete
+    }
+
+
+def get_current_user(request, db: Session):
+    user_id = request.state.user.get("id")
+
+    user = (
+        db.query(User)
+        .filter(User.id == user_id)
+        .first()
+    )
+
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found"
+        )
+
+    return {
+        "id": user.id,
+        "email": user.email,
+        "full_name": user.full_name,
+        "age": user.age,
+        "phone": user.phone,
+        "defaultCurrency": user.defaultCurrency,
     }

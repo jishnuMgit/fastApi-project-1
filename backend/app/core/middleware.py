@@ -8,15 +8,19 @@ PUBLIC_PATHS = {
     "/",
     "/api/v1/auth/login",
     "/api/v1/auth/register",
+    # "/api/v1/auth/login"
     "/docs",
     "/openapi.json",
     "/redoc",
 }
 
+# Jishnu123456@ jishnu@gmail.com
+
 
 async def jwt_middleware(request: Request, call_next):
 
     if request.url.path in PUBLIC_PATHS:
+        print(request.url.path)
         return await call_next(request)
 
     authorization = request.headers.get("Authorization")
