@@ -20,7 +20,7 @@ export const AuthProvider = ({ children }) => {
         api.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
         try {
           // Check if the token is valid by fetching user data
-          const response = await api.get('/auth/me');
+          const response = await api.get('/v1/auth/me');
           setUser(response.data);
         } catch (error) {
           // Clear invalid token
@@ -43,48 +43,103 @@ export const AuthProvider = ({ children }) => {
     }
   }, [pendingToast]);
 
-  const login = async (email, password) => {
-    try {
-      const response = await api.post('/auth/login', { email, password });
-      const { token: newToken, ...userData } = response.data;
+const login = async (email, password) => {
+  try {
+    const response = await api.post('/v1/auth/login', {
+      email,
+      password,
+    });
 
-      setToken(newToken);
-      setUser(userData);
-      localStorage.setItem('token', newToken);
-      api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+    const {
+      access_token: newToken,
+      user: userData,
+    } = response.data;
 
-      setPendingToast({ type: 'success', message: 'Login successful!' });
-      if (!userData.isSetupComplete) {
-        navigate('/setup');
-      } else {
-        navigate('/dashboard');
-      }
-    } catch (error) {
-      console.error('Login failed', error.response?.data);
-      setPendingToast({ type: 'error', message: error.response?.data?.message || 'Login failed. Please try again.' });
-      throw new Error(error.response?.data?.message || 'Login failed. Please try again.');
-    }
-  };
+    console.log('Token:', newToken);
+    console.log('User:', userData);
 
-  const signup = async (email, password) => {
-    try {
-      const response = await api.post('/auth/signup', { email, password });
-      const { token: newToken, ...userData } = response.data;
+    setToken(newToken);
+    setUser(userData);
 
-      setToken(newToken);
-      setUser(userData);
-      localStorage.setItem('token', newToken);
-      api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+    localStorage.setItem('token', newToken);
 
-      setPendingToast({ type: 'success', message: 'Signup successful!' });
+    api.defaults.headers.common['Authorization'] =
+      `Bearer ${newToken}`;
+
+    setPendingToast({
+      type: 'success',
+      message: 'Login successful!',
+    });
+
+    if (!userData.isSetupComplete) {
       navigate('/setup');
-    } catch (error) {
-      console.error('Signup failed', error.response?.data);
-      setPendingToast({ type: 'error', message: error.response?.data?.message || 'Signup failed. Please try again.' });
-      throw new Error(error.response?.data?.message || 'Signup failed. Please try again.');
+    } else {
+      navigate('/dashboard');
     }
-  };
 
+  } catch (error) {
+    console.error(
+      'Login failed',
+      error.response?.data
+    );
+
+    const message =
+      error.response?.data?.detail ||
+      error.response?.data?.message ||
+      'Login failed. Please try again.';
+
+    setPendingToast({
+      type: 'error',
+      message,
+    });
+
+    throw new Error(message);
+  }
+};
+
+const signup = async (data) => {
+  try {
+    const response = await api.post('/v1/auth/register', data);
+
+    const {
+      access_token: newToken,
+      user: userData,
+    } = response.data;
+
+    setToken(newToken);
+    setUser(userData);
+
+    localStorage.setItem('token', newToken);
+
+    api.defaults.headers.common['Authorization'] =
+      `Bearer ${newToken}`;
+
+    setPendingToast({
+      type: 'success',
+      message: 'Signup successful!',
+    });
+
+    navigate('/setup');
+
+  } catch (error) {
+    console.error(
+      'Signup failed:',
+      error.response?.data
+    );
+
+    const message =
+      error.response?.data?.detail ||
+      error.response?.data?.message ||
+      'Signup failed. Please try again.';
+
+    setPendingToast({
+      type: 'error',
+      message,
+    });
+
+    throw new Error(message);
+  }
+};
   const logout = () => {
     setPendingToast({ type: 'info', message: 'Logged out successfully.' });
     setUser(null);
@@ -94,18 +149,30 @@ export const AuthProvider = ({ children }) => {
     navigate('/login');
   };
 
-  const setup = async (defaultCurrency) => {
-    try {
-      const response = await api.put('/auth/setup', { defaultCurrency });
+const setup = async (defaultCurrency) => {
+  try {
+    const response = await api.put('/v1/auth/setup', {
+      defaultCurrency
+    });
 
-      setUser(response.data);
+    console.log("SETUP RESPONSE:", response.data);
 
-      navigate('/dashboard');
-    } catch (error) {
-      console.error('Setup failed', error);
-      throw new Error(error.response?.data?.message || 'Setup failed. Please try again.');
-    }
-  };
+    setUser(response.data);
+
+    console.log("NAVIGATING TO DASHBOARD");
+
+    navigate('/dashboard');
+  } catch (error) {
+    console.error("Setup failed:", error);
+    console.error("Backend:", error.response?.data);
+
+    throw new Error(
+      error.response?.data?.detail ||
+      error.response?.data?.message ||
+      'Setup failed. Please try again.'
+    );
+  }
+};
 
   return (
     <AuthContext.Provider value={{ user, token, loading, login, signup, logout, setup }}>
