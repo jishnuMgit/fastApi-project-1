@@ -53,9 +53,9 @@ const TransactionsPage = () => {
 
     try {
       const [summaryRes, expenseCategoriesRes, incomeCategoriesRes] = await Promise.all([
-        api.get('/transactions/summary'),
-        api.get('/transactions/categories/expense'),
-        api.get('/transactions/categories/income')
+        api.get('/v1/transactions/summary'),
+        api.get('/v1/transactions/categories/expense'),
+        api.get('/v1/transactions/categories/income')
       ]);
       setSummaryData(summaryRes.data);
       setExpenseCategories(expenseCategoriesRes.data);

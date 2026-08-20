@@ -53,10 +53,10 @@ const DashboardPage = () => {
       setLoading(true);
       const [summaryRes, chartRes, expenseCategoriesRes, // New API call
         incomeCategoriesRes] = await Promise.all([
-          api.get('/transactions/summary'),
-          api.get('/transactions/charts'),
-          api.get('/transactions/categories/expense'),
-          api.get('/transactions/categories/income')
+          api.get('/v1/transactions/summary'),
+          api.get('/v1/transactions/charts'),
+          api.get('/v1/transactions/categories/expense'),
+          api.get('/v1/transactions/categories/income')
         ]);
       console.log(chartRes)
       setSummaryData(summaryRes.data);
@@ -83,17 +83,17 @@ const DashboardPage = () => {
       alert("Please enter a name for the transaction");
       return;
     }
-    if (!formData.cost || isNaN(formData.cost) || Number(formData.cost) <= 0) {
-      alert("Please enter a valid cost greater than 0");
-      return;
-    }
+    // if (!formData.cost || isNaN(formData.cost) || Number(formData.cost) <= 0) {
+    //   alert("Please enter a valid cost greater than 0");
+    //   return;
+    // }
     if (!formData.category || formData.category.trim() === "") {
       alert("Please select a category");
       return;
     }
 
     try {
-      await api.post("/transactions", formData);
+      await api.post("/v1/transactions", formData);
       fetchData();
       handleCloseModal();
     } catch (error) {
@@ -124,7 +124,8 @@ const DashboardPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <SummaryCard title="Total Income" value={summaryData.totalIncome} bgColor="bg-green-200" loading={loading} />
         <SummaryCard title="Total Expense" value={summaryData.totalExpenses} bgColor="bg-red-200" loading={loading} />
-        <SummaryCard title="Current Balance" value={summaryData.balance} bgColor="bg-blue-200" loading={loading} />
+        <SummaryCard title="Current Balance" value={1000} bgColor="bg-blue-200" loading={loading} />
+        {/* value={summaryData.balance}  */}
       </div>
 
       <div className="my-10 grid grid-cols-1 lg:grid-cols-2 gap-8">

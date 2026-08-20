@@ -21,6 +21,7 @@ export const AuthProvider = ({ children }) => {
         try {
           // Check if the token is valid by fetching user data
           const response = await api.get('/v1/auth/me');
+          console.log(response)
           setUser(response.data);
         } catch (error) {
           // Clear invalid token

@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from sqlalchemy import text
-from app.routers import auth, users
+from app.routers import auth, users,transaction
 from fastapi.middleware.cors import CORSMiddleware 
 from app.core.middleware import jwt_middleware
 
@@ -40,6 +40,11 @@ app.include_router(
 )    
 app.include_router(
     users.router,
+    prefix="/api/v1"
+)
+
+app.include_router(
+    transaction.router,
     prefix="/api/v1"
 )
 

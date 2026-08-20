@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String,Boolean
 
 from app.database.database import Base
+from sqlalchemy.orm import relationship
 
 
 class User(Base):
@@ -22,3 +23,7 @@ class User(Base):
         Boolean,
         default=False
     )
+    transactions = relationship(
+    "Transaction",
+    back_populates="user"
+)
