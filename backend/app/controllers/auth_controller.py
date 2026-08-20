@@ -145,6 +145,8 @@ def get_current_user(request, db: Session):
             detail="User not found"
         )
 
+    print(f"defaultCurrency :", {user.defaultCurrency})
+
     return {
         "id": user.id,
         "email": user.email,

@@ -4,6 +4,11 @@ from jose import JWTError, jwt
 from dotenv import load_dotenv
 import os
 
+from fastapi import Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+
+security = HTTPBearer()
+
 load_dotenv()
 
 SECRET_KEY = os.getenv("JWT_SECRET_KEY")
@@ -38,6 +43,24 @@ def verify_token(token: str):
         return None
 
 
+# def get_token(
+#     credentials: HTTPAuthorizationCredentials = Depends(security)
+# ):
+#     token = credentials.credentials
+#     return token
+
+def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    token = credentials.credentials
+
+    payload = jwt.decode(
+        token,
+        SECRET_KEY,
+        algorithms=[ALGORITHM]
+    )
+
+    return payload
 
 
 def passwordhash(password):
