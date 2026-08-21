@@ -58,8 +58,13 @@ const TransactionsPage = () => {
         api.get('/v1/transactions/categories/income')
       ]);
       setSummaryData(summaryRes.data);
-      setExpenseCategories(expenseCategoriesRes.data);
-      setIncomeCategories(incomeCategoriesRes.data);
+      setExpenseCategories(
+  expenseCategoriesRes.data.map(item => item.category)
+);
+
+setIncomeCategories(
+  incomeCategoriesRes.data.map(item => item.category)
+);
       const params = new URLSearchParams({
         page: page.toString(),
         limit: '10'
@@ -81,7 +86,9 @@ const TransactionsPage = () => {
         params.append('endDate', dateTo);
       }
 
-      const transactionsRes = await api.get(`/transactions?${params.toString()}`);
+      const transactionsRes = await api.get(`/v1/transactions?${params.toString()}`);
+      // console.log(transactionsRes.data.transactions)
+      // alert(transactionsRes.data.totalPages)
       setTransactions(transactionsRes.data.transactions);
       setTotalPages(transactionsRes.data.totalPages);
       setSelectedTransactionIds([]); // Clear selection on data change
@@ -178,7 +185,7 @@ const TransactionsPage = () => {
         await api.delete(`/transactions/${id}`);
         // Compute the new transactions array after deletion
         setTransactions(prev => {
-          const updatedTransactions = prev.filter(t => t._id !== id);
+          const updatedTransactions = prev.filter(t => t.id !== id);
           if (updatedTransactions.length === 0 && page > 1) {
             setPage(page - 1); // useEffect will trigger fetchData
           } else {
@@ -346,7 +353,7 @@ const TransactionsPage = () => {
                       className="w-4 h-4 rounded focus:ring-2 focus:ring-blue-600 hover:ring-4 hover:ring-blue-200 transition-all duration-200 cursor-pointer"
                       checked={transactions.length > 0 && selectedTransactionIds.length === transactions.length}
                       disabled={transactions.length === 0}
-                      onChange={() => setSelectedTransactionIds(selectedTransactionIds.length ? [] : transactions.map(t => t._id))}
+                      onChange={() => setSelectedTransactionIds(selectedTransactionIds.length ? [] : transactions.map(t => t.id))}
                     />
                   </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
@@ -358,53 +365,41 @@ const TransactionsPage = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {transactions.map((tx) => (
-                <tr key={tx._id} className="hover:shadow-[0_2px_4px_rgba(0,0,0,0.1)] transition-shadow duration-200">
-                  <td className="px-2 py-6 text-center">
-                      <input
-                        type="checkbox"
-                        className="w-4 h-4 rounded focus:ring-2 focus:ring-blue-600 hover:ring-4 hover:ring-blue-200 transition-all duration-200 cursor-pointer"
-                        checked={selectedTransactionIds.includes(tx._id)}
-                        onChange={() => toggleSelect(tx._id)}
-                      />
-                    </td>
-                  <td className="px-6 py-4 whitespace-nowrap">{tx.name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{tx.category}</td>
-                  <td className={`px-6 py-4 whitespace-nowrap font-semibold ${tx.isIncome ? 'text-green-600' : 'text-red-600'}`}>
-                    {tx.isIncome ? '+' : '-'}{new Intl.NumberFormat('en-US', {
-                      style: 'currency',
-                      currency: currency.code,
-                    }).format(tx.cost)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">{new Date(tx.addedOn).toLocaleDateString()}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <button
-                      onClick={() => handleOpenDetailsModal(tx)}
-                      className="text-blue-600 hover:text-blue-800 underline font-medium"
-                    >
-                      Details
-                    </button>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => handleOpenTransactionModal(tx)}
-                          className="text-indigo-600 hover:text-indigo-900 p-2 rounded-full hover:bg-indigo-50 transition-all duration-200"
-                          title="Edit transaction"
-                        >
-                          <Edit size={18} />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteTransaction(tx._id)}
-                          className="text-red-600 hover:text-red-900 p-2 rounded-full hover:bg-red-50 transition-all duration-200"
-                          title="Delete transaction"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                    </td>
-                </tr>
-              ))}
+             {transactions.map((tx) => (
+  <tr key={tx.id}>
+    <td className="px-2 py-6 text-center">
+      <input
+        type="checkbox"
+        checked={selectedTransactionIds.includes(tx.id)}
+        onChange={() => toggleSelect(tx.id)}
+      />
+    </td>
+
+    <td className="px-6 py-4">
+      {tx.name}
+    </td>
+
+    <td className="px-6 py-4">
+      {tx.category}
+    </td>
+
+    <td
+      className={`px-6 py-4 font-semibold ${
+        tx.isIncome ? 'text-green-600' : 'text-red-600'
+      }`}
+    >
+      {tx.isIncome ? '+' : '-'}
+      {new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: currency?.code || 'USD',
+      }).format(tx.cost)}
+    </td>
+
+    <td className="px-6 py-4">
+      {new Date(tx.addedOn).toLocaleDateString()}
+    </td>
+  </tr>
+))}
             </tbody>
           </table>
           ) : (

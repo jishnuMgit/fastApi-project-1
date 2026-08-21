@@ -60,10 +60,12 @@ const DashboardPage = () => {
         ]);
       console.log(chartRes)
       setSummaryData(summaryRes.data);
+
       setChartData(chartRes.data);
       setExpenseCategories(expenseCategoriesRes.data);
       setIncomeCategories(incomeCategoriesRes.data);
       setRecentTransactions(summaryRes.data.recentTransactions || []);
+    console.log(summaryData)
     } catch (error) {
       console.error("Failed to fetch dashboard data", error);
     } finally {

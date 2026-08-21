@@ -1,5 +1,5 @@
 from datetime import date
-from pydantic import BaseModel, Field, StrictBool
+from pydantic import BaseModel, Field, StrictBool, ConfigDict
 
 
 class Transaction(BaseModel):
@@ -9,3 +9,14 @@ class Transaction(BaseModel):
     addedOn: date
     isIncome: StrictBool
     note: str = Field(max_length=255)
+
+
+class TransactionResponse(Transaction):
+    id: int
+    user_id: int
+
+    model_config = ConfigDict(from_attributes=True)
+
+class TransactionListResponse(BaseModel):
+    transactions: list[TransactionResponse]
+    totalPages: int
